@@ -1,5 +1,5 @@
 """
-This a module for finite groups.
+This a package for finite groups.
 We are using Python 3.10.
 
 It contains the following classes:
@@ -12,14 +12,12 @@ PSL: Class of groups PSL_n(Z/qZ).
 PGL: Class of groups PGL_n(Z/qZ).
 """
 
-
 import numpy as np
 import math
 import itertools
 import time
 from numpy import matrix
 from numpy import linalg
-
 
 class FiniteGroup:
     """
@@ -53,7 +51,6 @@ class FiniteGroup:
         self.operation = operation
     
     def inverse(self, g):
-
         """
         g: Find inverse of the group element g. If no inverse exists, we return False.
         """
@@ -64,7 +61,6 @@ class FiniteGroup:
         return False
     
     def is_group(self):
-
         """
         Checks if multiplication is well-defined and the inverses exist.  
         """
@@ -209,7 +205,7 @@ class PGL(FiniteGroup):
         Return:
         The group PGL_n(Z/qZ) as a FiniteGroup object.
         """
-
+        
         # We start with the initialization of GL(n,q) and endow the latter group with an equivalence relation.
         G = GL(n,q)
         def is_equivalent(A,B):
@@ -217,7 +213,7 @@ class PGL(FiniteGroup):
             for l in range(1,q):
                 if tuple([(l*a)%q for a in A]) == B: return True
             return False
-
+        
         # For each element of the resulting equivalence classes, we choose one element as a representative.
         # We implement the resulting projection mapping from GL(n,q) to PGL(n,q) as a dictionary.
         # To make sure that the identity matrix is chosen as the representative of its equivalence class we initialize the dicitionary as follows.
@@ -254,6 +250,7 @@ def roots_of_unity(n,q):
     Retrun: 
     Set of nth roots of unity in Z/qZ viewed as a subset of {0,1,2,3,...,q-1}
     """
+
     roots = {1}
     for k in range(2,q):
         if (k**n)%q ==1:
