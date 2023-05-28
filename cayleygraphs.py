@@ -3,7 +3,13 @@ This a package for Cayley graphs, which we are building on the groups package.
 We are using Python 3.10.
 
 It contains the following classes:
-CayleyGraph: 
+CayleyGraph: An implementation of Cayley graphs, building on the groups package.
+
+Taking a Cayley graph as input we define the following functions:
+is_connected: Returns wether or not the input Cayley graph is connected.
+is_bipartite: Returns wether or not the input Cayley graph is bipartite.
+adjacency_spectral_gap: Calculates the (strong) spectral gap of the normalized adjacency matrix.
+laplacian_spectral_gap: Calculates the spectral gap of the normalized Laplacian.
 """
 
 import numpy as np
@@ -33,55 +39,40 @@ class CayleyGraph:
         self.graph = graph
         self.group = group
         self.set = set
-        self.degree = graph.degree(group.elements[0])
 
-    def adjacency_spectrum(self):
-        """
-        Returns the spectrum of the adjacency matric of the Cayley graph, orderd in decreasing order. For convienience, we round the eigenvalues to 8 significant digits.
-        """
-        eigenvalues = nx.adjacency_spectrum(self.graph)
-        eigenvalues = [round(eig.real,8) for eig in eigenvalues]
+        #We furthermore calculate the eigenvalues of our graph. 
+        #For convenience we sort the eigenvalues in descending order, normalize them and round the values to 8 digits.
+        eigenvalues = list(nx.adjacency_spectrum(self.graph))
         eigenvalues.sort(reverse = True)
-        return eigenvalues
+        self.degree = round(eigenvalues[0].real)
+        self.eigenvalues = [round(eig.real/self.degree,8) for eig in eigenvalues]
     
-    def is_bipartite(self):
+def is_connected(Cay):
         """
-        Returns whether or not the Cayley graph is bipartite.
+        Returns wether or not the Cayley graph is connected.
+        We use the condition that a graph is connected if and only if the second largest eigenvalue of the adjacency matrix is strictly less than 1.
         """
-        abs_eigenvalues = [abs(eig) for eig in self.adjacency_spectrum()]
-        abs_eigenvalues.sort(reverse = True)
-        if abs_eigenvalues[1] == self.degree: return True
-        return False 
-    
-    def adjacency_spectral_gap(self):
-        """
-        Returns the spectral gap of the adjacency matrix. 
-        """
-        abs_eigenvalues = [abs(eig) for eig in self.adjacency_spectrum()]
-        abs_eigenvalues.sort(reverse = True)
-        return round(self.degree - abs_eigenvalues[1],8)
-    
-    def adjacency_strong_spectral_gap(self):
-        """
-        Returns the strong spectral gap of the adjacency matrix. 
-        """
-        abs_eigenvalues = [abs(eig) for eig in self.adjacency_spectrum()]
-        abs_eigenvalues.sort(reverse = True)
-        if self.is_bipartite(): return round(self.degree - abs_eigenvalues[2],8)
-        else: return round(self.degree - abs_eigenvalues[1],8)
-    
-    def laplacian_spectrum(self):
-        """
-        Returns the spectrum of the Laplacian of the Cayley graph, orderd in increasing order. For convienience, we round the eigenvalues to 8 significant digits.
-        """
-        eigenvalues = nx.laplacian_spectrum(Cay.graph)
-        abs_of_eigenvalues = [round(eig,8) for eig in eigenvalues]
-        abs_of_eigenvalues.sort()
-        return abs_of_eigenvalues
+        if Cay.eigenvalues[1] < 1: return True
+        return False
 
+def is_bipartite(Cay):
+        """
+        Returns wether or not a connected Cayley graph is bipartite.
+        We use the spectral condition that a connected graph is bipatite if and only if -1 is an eigenvalue of the graph.
+        """
+        if is_connected(Cay) == False: return "Graph not connected."
+        if Cay.eigenvalues[-1] == -1: return True
+        return False
 
-    def laplacian_spectral_gap(self):
+def adjacency_spectral_gap(Cay):
         """
-        Returns the first eigenvalue of the Laplacian.
+        Returns the (strong) spectral gap of the normalized adjacency matrix. 
         """
-        return self.laplacian_spectrum()[1]
+        return max(1 - Cay.eigenvalues[1], abs(-1 - Cay.eigenvalues[-1]))
+
+def laplacian_spectral_gap(Cay):
+        """
+        Returns the first eigenvalue of the normalized Laplacian. 
+        We note that the spectrum of the normalized Laplacian is simply the 1 - (spectrum of the normalized adjacency matrix).
+        """
+        return (1 - Cay.eigenvalues[1])
