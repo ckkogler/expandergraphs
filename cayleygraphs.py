@@ -6,8 +6,8 @@ It contains the following classes:
 CayleyGraph: An implementation of Cayley graphs, building on the groups package.
 
 Taking a Cayley graph as input we define the following functions:
-is_connected: Returns wether or not the input Cayley graph is connected.
-is_bipartite: Returns wether or not the input Cayley graph is bipartite.
+is_connected: Returns whether or not the input Cayley graph is connected.
+is_bipartite: Returns whether or not the input Cayley graph is bipartite.
 adjacency_spectral_gap: Calculates the (strong) spectral gap of the normalized adjacency matrix.
 laplacian_spectral_gap: Calculates the spectral gap of the normalized Laplacian.
 """
@@ -49,7 +49,7 @@ class CayleyGraph:
     
 def is_connected(Cay):
         """
-        Returns wether or not the Cayley graph is connected.
+        Returns whether or not the Cayley graph is connected.
         We use the condition that a graph is connected if and only if the second largest eigenvalue of the adjacency matrix is strictly less than 1.
         """
         if Cay.eigenvalues[1] < 1: return True
@@ -57,7 +57,7 @@ def is_connected(Cay):
 
 def is_bipartite(Cay):
         """
-        Returns wether or not a connected Cayley graph is bipartite.
+        Returns whcyether or not a connected Cayley graph is bipartite.
         We use the spectral condition that a connected graph is bipatite if and only if -1 is an eigenvalue of the graph.
         """
         if is_connected(Cay) == False: return "Graph not connected."
@@ -68,7 +68,7 @@ def adjacency_spectral_gap(Cay):
         """
         Returns the (strong) spectral gap of the normalized adjacency matrix. 
         """
-        return max(1 - Cay.eigenvalues[1], abs(-1 - Cay.eigenvalues[-1]))
+        return 1 - max(abs(Cay.eigenvalues[1]),abs(Cay.eigenvalues[-1]))
 
 def laplacian_spectral_gap(Cay):
         """
