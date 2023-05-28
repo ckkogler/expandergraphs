@@ -76,3 +76,9 @@ def laplacian_spectral_gap(Cay):
         We note that the spectrum of the normalized Laplacian is simply the 1 - (spectrum of the normalized adjacency matrix).
         """
         return (1 - Cay.eigenvalues[1])
+
+def girth(Cay):
+        """
+        Returns girth (length of shortest cycle) of the Cayley graph.
+        """
+        return min(len(cycle) for cycle in nx.cycle_basis(Cay.graph))
