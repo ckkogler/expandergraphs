@@ -8,8 +8,10 @@ CayleyGraph: An implementation of Cayley graphs, building on the groups package.
 Taking a Cayley graph as input we define the following functions:
 is_connected: Returns whether or not the input Cayley graph is connected.
 is_bipartite: Returns whether or not the input Cayley graph is bipartite.
+diameter: Calculates the diameter of the Cayley graph.
 adjacency_spectral_gap: Calculates the (strong) spectral gap of the normalized adjacency matrix.
 laplacian_spectral_gap: Calculates the spectral gap of the normalized Laplacian.
+girth: Calculates the girth of the Cayley graph (i.e. the length of the shortest cycle).
 """
 
 import numpy as np
@@ -57,12 +59,19 @@ def is_connected(Cay):
 
 def is_bipartite(Cay):
         """
-        Returns whcyether or not a connected Cayley graph is bipartite.
+        Returns whether or not a connected Cayley graph is bipartite.
         We use the spectral condition that a connected graph is bipatite if and only if -1 is an eigenvalue of the graph.
         """
         if is_connected(Cay) == False: return "Graph not connected."
         if Cay.eigenvalues[-1] == -1: return True
         return False
+
+def diameter(Cay):
+        """
+        Returns the diameter of the Cayley graph.
+        """
+        if is_connected(Cay)==False: return "Not connected."
+        return nx.diameter(Cay.graph)
 
 def adjacency_spectral_gap(Cay):
         """
@@ -82,3 +91,18 @@ def girth(Cay):
         Returns girth (length of shortest cycle) of the Cayley graph.
         """
         return min(len(cycle) for cycle in nx.cycle_basis(Cay.graph))
+
+def size_of_ball(d,r):
+    if r in {0,1}: return d**r
+    else: return d*((d-1)**(r-1))
+
+def injectivity_radius(Cay):
+    A = nx.to_numpy_array(Cay.graph)  
+    n = len(Cay.group.elements)
+    d = Cay.degree
+    r = 1
+    B = A
+    while list(B[0,:]).count(1) == size_of_ball(d,r):
+        B = np.matmul(B,A)
+        r += 1
+    return r-1
