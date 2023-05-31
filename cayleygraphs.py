@@ -9,7 +9,8 @@ Taking a Cayley graph as input we define the following functions:
 is_connected: Returns whether or not the input Cayley graph is connected.
 is_bipartite: Returns whether or not the input Cayley graph is bipartite.
 diameter: Calculates the diameter of the Cayley graph.
-adjacency_spectral_gap: Calculates the (strong) spectral gap of the normalized adjacency matrix.
+adjacency_spectral_gap: Calculates the strong spectral gap of the normalized adjacency matrix.
+adjacency_star: Calculates the spectral gap of the adjacency matrix. 
 laplacian_spectral_gap: Calculates the spectral gap of the normalized Laplacian.
 girth: Calculates the girth of the Cayley graph (i.e. the length of the shortest cycle).
 """
@@ -75,9 +76,18 @@ def diameter(Cay):
 
 def adjacency_spectral_gap(Cay):
         """
-        Returns the (strong) spectral gap of the normalized adjacency matrix. 
+        Returns the strong spectral gap of the normalized adjacency matrix of a connected graph. 
         """
         return 1 - max(abs(Cay.eigenvalues[1]),abs(Cay.eigenvalues[-1]))
+
+def adjacency_star(Cay):
+        """
+        Returns the spectral gap of the normalized adjacency matrix of a connected graph. 
+        This is the distance to one of the largest modulus that is not one.  
+        """
+        if Cay.is_bipartite: 
+                return 1 - max(abs(Cay.eigenvalues[1]),abs(Cay.eigenvalues[-2]))
+        else: return adjacency_spectral_gap(Cay)
 
 def laplacian_spectral_gap(Cay):
         """
