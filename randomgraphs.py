@@ -76,12 +76,25 @@ def random_simple_adjacency_matrix(n,d):
             count += 1
     return A 
 
-def spectral_gap(A):
-    deg = A[0,:].sum()
-    ev = np.round(np.linalg.eigvals(A),5)/deg
-    lambda1 = 1 - max(ev[1:])
-    lambda2 = 1 - abs(min(ev[1:]))
-    return min(lambda1,lambda2)
+def sorted_eigenvalues(A):
+    return np.round(np.sort(linalg.eigvalsh(A))[::-1],6)    
+
+def is_connected(A):
+    """
+    Returns whether or not the Cayley graph is connected.
+    We use the condition that a graph is connected if and only if the second largest eigenvalue of the adjacency matrix is strictly less than 1.
+    """
+    if sorted_eigenvalues(A)[1] < 1: return True
+    return False
+
+def is_bipartite(A):
+    """
+    Returns whether or not a connected Cayley graph is bipartite.
+    We use the spectral condition that a connected graph is bipatite if and only if -1 is an eigenvalue of the graph.
+    """
+    if is_connected(Cay) == False: return "Graph not connected."
+    if sorted_eigenvalues(A) == -1: return True
+    return False
 
 def diameter(A):
     diameter = 1
@@ -91,45 +104,56 @@ def diameter(A):
         diameter += 1
     return diameter
 
+def adjacency_spectral_gap(A):
+    """
+    Returns the strong spectral gap of the normalized adjacency matrix of a connected graph. 
+    """
+    return 1 - max(abs(sorted_eigenvalues(A)[1]),abs(sorted_eigenvalues(A)[-1]))
+
+def adjacency_star(A):
+    """
+    Returns the spectral gap of the normalized adjacency matrix of a connected graph. 
+    This is the distance to one of the largest modulus that is not one.  
+    """
+    if is_bipartite(A): 
+            return 1 - max(abs(sorted_eigenvalues(A)[1]),abs(sorted_eigenvalues(A)[-2]))
+    else: return adjacency_spectral_gap(A)
+
+def laplacian_spectral_gap(A):
+    """
+    Returns the first eigenvalue of the normalized Laplacian. 
+    We note that the spectrum of the normalized Laplacian is simply the 1 - (spectrum of the normalized adjacency matrix).
+    """
+    return (1 - sorted_eigenvalues(A)[1])
+
 def girth(A):
-    G = nx.from_numpy_array(A)
-    girth = min(len(cycle) for cycle in nx.cycle_basis(G))
-    return girth
-        
+    """
+    Returns girth (length of shortest cycle) of the graph associated to A.
+    """
+    gph = nx.from_numpy_array(A)
+    return min(len(cycle) for cycle in nx.cycle_basis(gph))
 
-def ramanujan_bound(d):
-    return 1 - 2*np.sqrt(d-1)/d
+def size_of_sphere(d,r):
+    """
+    Calculates the size of the d-sphere around the identity in the free group.
+    """
+    if r in {0,1}: return d**r
+    else: return d*((d-1)**(r-1))
 
+def injectivity_radius(A):
+    n = A.shape[0]
+    d = A[:,1].sum()
+    output = np.zeros((n,2),int) - 1
+    B = A
+    r = 1
+    while output.min() == -1:
+        for i in range(0,n):
+            if output[i,1] == -1 and list(B[i,:]).count(1) < size_of_sphere(d,r):
+                output[i,0] = r-1
+                output[i,1] = 0
+        r += 1
+        B = np.matmul(B,A)
+    return output[:,0]
 
-
-def find_ramanujan(n,d,t):
-    r = 0
-    for k in range(1,t):
-        r1 = spectral_gap(random_simple_adjacency_matrix(n,d))
-        if r1 > r: 
-                r = r1
-                print(r)
-                if r > ramanujan_bound(2*d):
-                    print("Is Ramanujan!")
-
-
-def count_simple_ramanujan(n,d,t):   
-    count = 0
-    for k in range(1,t):
-        r1 = spectral_gap(random_simple_adjacency_matrix(n,d))
-        if r1 > ramanujan_bound(2*d): 
-            count += 1
-            print("Ramanujan Graph found.")
-    print("We sampled ", t, "random simple graphs.")
-    print("Out of them", count, "were Ramanujan.")      
-
-
-def find_graph_with_low_grith(n,d,t):   
-    girth = 0
-    for k in range(0,t):
-        girth_new = spectral_gap(random_simple_adjacency_matrix(n,d))
-        if r1 > ramanujan_bound(2*d): 
-            count += 1
-            print("Ramanujan Graph found.")
-    print("We sampled ", t, "random simple graphs.")
-    print("Out of them", count, "were Ramanujan.") 
+def mean_injectivity_radius(A):
+    return np.mean(injectivity_radius(A))

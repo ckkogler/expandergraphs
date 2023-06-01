@@ -85,7 +85,7 @@ def adjacency_star(Cay):
         Returns the spectral gap of the normalized adjacency matrix of a connected graph. 
         This is the distance to one of the largest modulus that is not one.  
         """
-        if Cay.is_bipartite: 
+        if is_bipartite(Cay): 
                 return 1 - max(abs(Cay.eigenvalues[1]),abs(Cay.eigenvalues[-2]))
         else: return adjacency_spectral_gap(Cay)
 
@@ -102,17 +102,23 @@ def girth(Cay):
         """
         return min(len(cycle) for cycle in nx.cycle_basis(Cay.graph))
 
-def size_of_ball(d,r):
-    if r in {0,1}: return d**r
-    else: return d*((d-1)**(r-1))
+#We next aim to calculate the injectivity radius, as defined 
+#To do so, we first calculate the size of the d-sphere in the free group.
+
+def size_of_sphere(d,r):
+        """
+        Calculates the size of the d-sphere around the identity in the free group.
+        """
+        if r in {0,1}: return d**r
+        else: return d*((d-1)**(r-1))
 
 def injectivity_radius(Cay):
-    A = nx.to_numpy_array(Cay.graph)  
-    n = len(Cay.group.elements)
-    d = Cay.degree
-    r = 1
-    B = A
-    while list(B[0,:]).count(1) == size_of_ball(d,r):
-        B = np.matmul(B,A)
-        r += 1
-    return r-1
+        A = nx.to_numpy_array(Cay.graph)  
+        n = len(Cay.group.elements)
+        d = Cay.degree
+        r = 1
+        B = A
+        while list(B[0,:]).count(1) == size_of_sphere(d,r):
+                B = np.matmul(B,A)
+                r += 1
+        return r-1

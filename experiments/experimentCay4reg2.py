@@ -17,7 +17,7 @@ import LPS
 print("We show the following quantities:")
 print("k & Number of elements & Diameter & gamma & lambda_1 & girth & girth ratio & mean injectivity radius")
 
-for k in range(2,35):
+for k in range(29,35):
     #Since we require 2 to be invertible, we only consider odd k. 
     if k%2!=0:
 

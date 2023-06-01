@@ -16,8 +16,8 @@ import LPS
 print("We show the following quantities:")
 print("(p,q) & Number of elements & Diameter & gamma & lambda_star & lambda_1 & girth & girth ratio & mean injectivity radius")
 
-for p in range(3,50):
-    for q in range(3,35):
+for p in range(20,50):
+    for q in range(3,20):
         if LPS.is_prime(p) and p%4==1:
             if LPS.is_prime(q) and q%4==1 and q!=p: 
                 #Construction of Cayley graph. It suffices to take the set [(1,1,0,1), (1,0,1,1)]
