@@ -77,7 +77,9 @@ def random_simple_adjacency_matrix(n,d):
     return A 
 
 def sorted_eigenvalues(A):
-    return np.round(np.sort(linalg.eigvalsh(A))[::-1],6)    
+    deg =  A[:,1].sum()
+    evals = np.round(np.sort(linalg.eigvalsh(A))[::-1],6) 
+    return evals/deg 
 
 def is_connected(A):
     """
@@ -92,8 +94,8 @@ def is_bipartite(A):
     Returns whether or not a connected Cayley graph is bipartite.
     We use the spectral condition that a connected graph is bipatite if and only if -1 is an eigenvalue of the graph.
     """
-    if is_connected(Cay) == False: return "Graph not connected."
-    if sorted_eigenvalues(A) == -1: return True
+    if is_connected(A) == False: return "Graph not connected."
+    if sorted_eigenvalues(A)[-1] == -1: return True
     return False
 
 def diameter(A):
