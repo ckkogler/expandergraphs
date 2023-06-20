@@ -1,0 +1,609 @@
+
+
+In this note we collect computational results on graphs that were performed with the python package \textit{expandergraphs} available on GitHub under the link \url{https://github.com/ckkogler/expandergraphs}.
+
+\section{Theoretical Background}
+
+Throughout we denote by $G = (V,E)$ a finite, non-directed, simple and connected graph. We always assume that $G$ is $k$-regular for some $k \geq 2$ and write $n$ for the cardinality of $V$.
+
+A particularly interesting class of regular graphs are Cayley graphs, which we define now. Let $G$ be a group and $S$ a symmetric generating set with $e \not \in S$.  The (right) Cayley graph $\mathrm{Cay}(G,S)$ of $G$ with respect to $S$ is the graph wit vertex set $G$  and the edges are given by $\{ \{ sg, g \} \,:\, s \in S \text{ and } g \in G  \}$. The graph $\mathrm{Cay}(G,S)$ is regular of degree $|S|$.
+
+\subsection{Geometric Properties}
+
+We review a few geometric properties of graphs. 
+
+\begin{definition}
+	The \textbf{diameter} $\mathrm{diam}(G)$ of $G$ is defined as the maximal distance between any two nodes of $G$. 
+\end{definition} 
+ 
+ \begin{definition}
+ 	The \textbf{girth} $g(G)$ of $G$ is the length of the shortest cycle. 
+ \end{definition}
+
+By probabilistic methods, Erdös and Sachs \cite{ErdosSachs1963} proved that for fixed $k$ with $k \geq 3$, there exist graphs with girth $(\log_{k-1}(|G|) + o(|G|)).$ On the other hand, we have the upper bound $g(G) \leq (2\log_{k-1}(|G|) + o(|G|))$.
+
+\begin{definition}
+	The \textbf{girth ratio} $g(G)$ of a $k$-regular graph is defined as $$g_{\mathrm{ratio}}(G) = \frac{g(G)}{\log_{k-1}(|G|)}.$$
+\end{definition}
+
+Let $(G_n)_{n \geq 1}$ be a sequence of graphs. It is an interesting question to understand the largest limit point of the sequence $g_{\mathrm{ratio}}(G_n)$. The maximal known limit point is given by the construction of Ramanujan graphs due to Lubotzky-Phillips-Sarnak \cite{LubotzkyPhillipsSarnak1988}, that will be reviewed below. Indeed, together with the result by \cite{BiggsBoshier1990}, there is a sequence of graphs satisfying  $$\lim_{n \to \infty}  g_{\mathrm{ratio}}(G_n) = \frac{4}{3}.$$
+
+We next define the injectivity radius of $G$. Denote by $T_k$ the infinite $k$-regular tree and note that $T_k$ is a universal cover of any $k$-regular graph.
+
+\begin{definition}
+	Let $G$ be a $k$-regular graph and let $x \in G$. Consider a covering map $\varphi: T_k \to G$ sending $o \in T_k$ to $x \in G$. The injectivity radius $\mathrm{inj}(x)$ of $x$ is defined as the largest possible integer $r \geq 0$ such that the map $$\varphi: B_{r}(o)  \to G$$ is injective, where $B_{r}(o) = \{ y \in T_k \,:\, d_{T_k}(y,o) \leq r \}$ is the ball of radius $r$ around $o \in T_k$.
+\end{definition}
+
+Note that for (right) Cayley graphs, left multiplication defines an isometry and hence they are homogeneous, i.e. Cayley graphs look the same around every point. Therefore the injectivity radius of Cayley graphs is the same at every point and the girth is shortest cycle containing the identity $e\in G$. 
+
+\begin{definition}
+	Let $G$ be a finite $k$-regular graph. The \textbf{mean injectivity radius} of $G$ is defined as $$\mathrm{inj}_{\mathrm{mean}}(G) = \frac{1}{|G|} \sum_{x \in G} \mathrm{inj}(x).$$
+\end{definition}
+
+\subsection{Spectral Properties}
+
+Let $A'$ be the adjacency matrix of $G$, i.e. $A'(i,j) = 1$ if and only if $i \sim j$ and $A'(i,j) = 0$ otherwise and consider the normalized adjacency matrix $A = \frac{1}{k}A'.$  The matrix $A$ is a symmetric $n \times n$ matrix and therefore real-diagonalizable with eigenvalues $$1 = \gamma_0(G)\geq  \ldots \geq \gamma_{n-1}(G) \geq -1.$$ The graph $G$ is connected if and only if $\gamma_1(G) < 1$. Moreover a connected graph is bipartite if and only if $\gamma_{n-1}(G) = -1$. We consider the strong spectral gap defined as
+$$\gamma_{*}(G)  =  1 - \max(|\gamma_1(G)|,|\gamma_{n-1}(G)|)$$ and the spectral grap as $$\lambda_{*}(G) = 1 - \max_{1 \leq i \leq n}\{ |\gamma_i(G)| \text{ with }  |\gamma_i(G)| \neq 1 \}$$
+
+The normalized Laplacian is defined as $$L = \mathrm{Id} - A$$ and has eigenvalues $$0 = \lambda_0(G) \leq \lambda_1(G) \leq \ldots \leq \lambda_{n-1}(G) \leq 2.$$ The reader may notice that $\lambda_i(G) = 1-\gamma_i(G)$. Since a graph is connected whenever $\lambda_1(G) > 0$, the first eigenvalue of the Laplacian can be understood as measuring how well connected $G$ is. 
+
+A family of graphs that have a uniform lower bound on $\lambda_1$  are called an expander family.
+
+\begin{definition}
+	A family for graphs $(G_m)_{m \geq 1}$ is called an \textbf{expander family} if there exists $\varepsilon > 0$ such that for all $m \geq 1$, $$\lambda_1(G_m) \geq \eps.$$
+\end{definition}
+
+We next discuss the question on what bound is optimal for $\lambda_1(G)$. If $(G_n)_{n \geq 1}$ is an familiy of $k$-regular graphs with $\lim_{n \to \infty}|G_n| = \infty$, then the Alon-Boppana inequality holds: $$\limsup_{n \to \infty} \lambda_1(G_n) \leq \frac{k - 2\sqrt{k-1}}{k}.$$ We refer to \cite{HooryLinialWidgerson2006}, yet observe that with straightforward methods one may establish $$\limsup_{n \to \infty} \lambda_{1}(G_n) \leq 1 - \frac{1}{\sqrt{k}},$$ as deduced in Lemma~\ref{WeakAlonBoppana}. Moreover we state the following result by Nilli.
+
+\begin{theorem}(\cite{Nilli1991})
+	Let $G$ be a $k$-regular graph containing two edges who vertices are at distance at least $2(\ell + 1)$. Then it holds that $$\lambda_1(G) \leq \frac{k - 2\sqrt{k-1}}{k} + \frac{2\sqrt{k-1}}{k(\ell + 1)}.$$
+\end{theorem}
+
+In \cite{LubotzkyPhillipsSarnak1988}, the following definition of Ramanujan graphs is introduced. Ramanujan graphs satisfy the reverse Alon-Boppana inequality and are therefore asymptotically spectrally optimal. 
+
+\begin{definition}\label{Ramanujan}
+	A connected $k$-regular graph $G$ is called \textbf{Ramanujan} if $$\lambda_{*}(G) \geq \frac{k-2\sqrt{k-1}}{k}.$$ 
+\end{definition}
+
+For convience we list here the values given by the Ramanujan condition.
+
+\begin{center}
+	\begin{tabular}{ p{0.5cm}|p{1.3cm}}
+		$k$ & $\frac{k - 2\sqrt{k-1}}{k}$ \\
+		\hline
+		2 & 0.0 \\
+		3 & 0.057 \\
+		4 & 0.134 \\
+		5 & 0.2 \\
+		6 & 0.255 \\
+		7 & 0.3 \\
+		8 & 0.339 \\
+		9 & 0.371 \\
+		10 & 0.4 \\
+		11 & 0.425 \\
+	\end{tabular}
+	\hspace{2em}
+	\begin{tabular}{ p{0.5cm}|p{1.3cm}}
+		$k$ & $\frac{k - 2\sqrt{k-1}}{k}$ \\
+		\hline
+		12 & 0.447 \\
+		13 & 0.467 \\
+		14 & 0.485 \\
+		15 & 0.501 \\
+		16 & 0.516 \\
+		17 & 0.529 \\
+		18 & 0.542 \\
+		19 & 0.553 \\
+		20 & 0.564 \\
+		21 & 0.574 \\
+	\end{tabular}
+	\hspace{2em}
+	\begin{tabular}{ p{0.5cm}|p{1.3cm}}
+	$k$ & $\frac{k - 2\sqrt{k-1}}{k}$ \\
+	\hline
+	22 & 0.583 \\
+	23 & 0.592 \\
+	24 & 0.6 \\
+	25 & 0.608 \\
+	26 & 0.615 \\
+	27 & 0.622 \\
+	28 & 0.629 \\
+	29 & 0.635 \\
+	30 & 0.641 \\
+	31 & 0.647 
+	\end{tabular}
+\end{center}
+
+\subsection{Construction of Ramanujan graphs}
+
+\cite{LubotzkyPhillipsSarnak1988} established the following result by an explicit construction.
+
+\begin{theorem}
+	Let $p$ be a prime with $p \equiv 1 \mod 4$. Then there exists an infinite family of Ramanujan graphs of degree $(p + 1)$ of arbitrarily large size. 
+\end{theorem}
+
+We now review the construction of \cite{LubotzkyPhillipsSarnak1988}. Let $p$ and $q$ be distinct primes with $p \equiv 1 \equiv q \mod 4$. Recall that a number $a$ is called a quadratic residue modulo $q$ if there exists $i \in \Z$ such that $a \equiv i^2 \mod q$. We introduce the following notation:
+$$\genfrac{(}{)}{}{}{p}{q} = \begin{cases}
+1 & \text{if } p \text{ if a quadratic residue modulo } q,\\
+-1& \text{else.}
+\end{cases}$$
+
+The construction of the graph $X^{p,q}$ is given as follows. By Jacobi's theorem there are $(p + 1)$ integer solutions to the equation 
+\begin{equation}\label{JacobiSolutions}
+p = a_0^2 + a_1^2 + a_2^2 + a_3^2 \quad \text{ with } \, a_0 > 0 \, \text{  odd and } \, a_1,a_2,a_3 \, \text{ even.}
+\end{equation}
+
+
+First, we review the construction if $\genfrac{(}{)}{}{}{p}{q} = -1$. Consider $G = \mathrm{PGL}_2(\mathbb{F}_q)$ and the generating set $$S = \left\{ \begin{pmatrix}
+a_0 + i a_1 & a_2 + i a_3 \\-a_2 + ia_3 & a_0 - i a_1
+\end{pmatrix} \,:\, (a_0,a_1,a_2,a_3) \in \Z^4 \text{ satisfying } \eqref{JacobiSolutions}  \right\}$$ for $i$ a fixed solution to $i^2 \equiv -1 \mod q$. Then $$X^{p,q} = \mathrm{Cay}(G,S).$$
+
+If on the other hand $\genfrac{(}{)}{}{}{p}{q} = 1$, then we consider $G' = \mathrm{PSL}_2(\mathbb{F}_q)$. We moreover choose an integer $t \in \Z$ with $t^2 \equiv p \mod q$ and consider the set $S' = t^{-1}S$, where we multiply each of the entries of the matrices of $S$ by $t^{-1}$. As above we define $$X^{p,q} = \mathrm{Cay}(G',S').$$
+
+The main result of \cite{LubotzkyPhillipsSarnak1988} is the following.
+
+\begin{theorem}(\cite{LubotzkyPhillipsSarnak1988})
+	Let $p$ and $q$ by distinct primes satisfying $p \equiv 1 \equiv q \mod 4$. Then $X^{p,q}$ is a $(p+1)$-regular Ramanujan graph. 
+	\begin{enumerate}[(i)]
+		\item If $\genfrac{(}{)}{}{}{p}{q} = -1$, $X^{p,q}$ is bipartite and $|X^{p,q}| = q(q^2 -1)$. Moreover, $$g(X^{p,q}) \geq 4 \log_p q - \log_p 4 \quad \text{ and } \quad \mathrm{diam}(X^{p,q}) \leq 2 \log_p |X^{p,q}| + 2 \log_p 2 + 1.$$
+		\item If $\genfrac{(}{)}{}{}{p}{q} = 1$, $X^{p,q}$ is not bipartite and $|X^{p,q}| = q(q^2 -1)/2$. Moreover, $$g(X^{p,q}) \geq 2 \log_p  \quad \text{ and } \quad \mathrm{diam}(X^{p,q}) \leq 2 \log_p |X^{p,q}| + 2 \log_p 2 + 1.$$
+	\end{enumerate}
+\end{theorem}
+
+We moreover state the following result by \cite{BiggsBoshier1990}, giving a strong 
+
+\begin{theorem}(\cite{BiggsBoshier1990})
+	Let $p$ and $q$ by distinct primes satisfying $p \equiv 1 \equiv q \mod 4$ and assume that $\genfrac{(}{)}{}{}{p}{q} = -1$. Then $$g(X^{p,q}) < 4 \log_p q + \log_p 4 + 2. $$ In particular, $g(X^{p,q}) \in [4 \log_p q - \log_p 4 , 4 \log_p q + \log_p 4 + 2)$.
+\end{theorem}
+
+Below a few explicit computational results are shown.
+
+\begin{center}
+	\begin{tabular}{ p{1.5cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{9}{c}{$X^{p,q}$} \\
+		\multicolumn{9}{c}{$\mathrm{deg}(X^{p,q}) = p + 1$} \\
+		\hline
+		$(p,q)$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ & $\lambda_{*}$ & $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		(5, 13) & 2184 & 7 &  0.0 & 0.292 & 0.292 & 8 & 1.675 & 3 \\
+		(5, 17) & 4896 & 9 &  0.0 & 0.282 & 0.282 & 8 & 1.515 & 3 \\
+		(13, 5) & 120 & 3 &  0.0 & 0.714 & 0.714 & 4 & 2.143 & 1 \\
+		(13, 17) & 2448 & 4 &  0.494 & 0.494 & 0.564 & 6 & 1.972 & 2 \\
+		(17, 5) & 120 & 3 &  0.0 & 0.667 & 0.667 & 4 & 2.367 & 1 \\
+		(17, 13) & 1092 & 4 &  0.564 & 0.564 & 0.615 & 3 & 1.215 & 1 \\
+		(29, 5) & 60 & 2 &  0.741 & 0.741 & 0.889 & 3 & 2.387 & 1 \\
+		(29, 13) & 1092 & 3 &  0.669 & 0.669 & 0.669 & 3 & 1.444 & 1 \\
+		(29, 17) & 4896 & 5 &  0.0 & 0.667 & 0.667 & 4 & 1.585 & 1 \\
+		(37, 5) & 120 & 3 &  0.0 & 0.824 & 0.824 & 4 & 2.921 & 1 \\
+		(37, 13) & 2184 & 4 &  0.0 & 0.702 & 0.702 & 4 & 1.879 & 1 \\
+		(37, 17) & 4896 & 4 &  0.0 & 0.685 & 0.685 & 4 & 1.7 & 1 \\
+		(41, 5) & 60 & 2 &  0.846 & 0.846 & 0.923 & 3 & 2.665 & 1 \\
+		(41, 13) & 2184 & 4 &  0.0 & 0.726 & 0.726 & 4 & 1.932 & 1 \\
+		(41, 17) & 4896 & 5 &  0.0 & 0.725 & 0.725 & 4 & 1.748 & 1 
+	\end{tabular}
+\end{center}
+
+\begin{center}
+	\begin{tabular}{ p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}  }
+		\multicolumn{6}{c}{$X^{p,q}$} \\
+		\multicolumn{6}{c}{$\mathrm{deg}(X^{p,q}) = p + 1$} \\
+		\hline
+		$p$ & $q$ & $n$ & Bipartite & $\lambda_1 \approx$  & $\gamma_{*} \approx$   \\
+		\hline
+		13 & 5 & 120 & Yes & 0.714 &   0.714  \\
+		5 & 13 & 2184 & Yes & 0.292 &  0.292  \\
+		17 & 13 & 1092 & No & 0.615 & 0.564 \\
+		29 & 13 & 1092 & No & 0.669 & 0.669 \\
+		37 & 13 & 2184 & Yes & 0.702 &  0.702  \\
+		5 & 17 & 4896 & Yes & 0.282 &  0.282  \\
+		13 & 17 & 2448 & No & 0.564 &  0.494  \\
+	\end{tabular}
+\end{center}
+
+
+\subsection{Exansion properties of Cayley graphs}
+
+In this section we calculate spectral properties of the Cayley graph of the group $\mathrm{SL}_2(\Z/m\Z)$ for $m\geq 1$ with respect to various generating sets. We recall the following well-known result, for which we use the notation $$\pi_m : \mathrm{SL}_2(\Z) \to \mathrm{SL}_2(\Z/m\Z).$$
+
+\begin{theorem}(\cite{LubotzkyDiscreteBook} section 4) 
+	Let $S$ be a finite symmetric generating set of $\mathrm{SL}_2(\Z)$ not containing the identity. Then the collection of graphs $$(\mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z), \pi_m(S)))_{m \geq 2}$$ forms an expander family. 
+\end{theorem}
+
+\bibliography{/users/constantinkogler/desktop/latex/bibliography/referencesgeneral.bib}
+
+
+\newpage
+
+\section{Computational Results for Random Graphs}
+
+In this file we document 
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$|G| = 64$, $\mathrm{deg}(G) = 4$} \\
+		\multicolumn{8}{c}{We sampled $1'000'000$ graphs} \\
+		 & $\mathrm{diam}$ & $\gamma_*$ & $\lambda_{*}$  &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		 \hline
+		mean & 5.988 & 0.156 & 0.156 &  0.175 & 3.015 & 0.796 & 1.485 \\
+		std & 0.148 & 0.015 & 0.015 &  0.019 & 0.121 & 0.032 & 0.115 \\
+		best & 5 & 0.216 & 0.216 &  0.251 & 5 & 1.321 & 2.0 \\
+	\end{tabular}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$|G| = 128$, $\mathrm{deg}(G) = 4$} \\
+		\multicolumn{8}{c}{We sampled $100'000$ graphs} \\
+		& $\mathrm{diam}$ & $\gamma_*$ & $\lambda_{*}$  &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		mean & 6.745 & 0.146 & 0.146 &  0.155 & 3.017 & 0.683 & 1.718 \\
+		std & 0.444 & 0.009 & 0.009 &  0.011 & 0.128 & 0.029 & 0.081 \\
+		best & 6 & 0.179 & 0.179 &  0.2 & 5 & 1.132 & 2.039 \\
+	\end{tabular}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$|G| = 256$, $\mathrm{deg}(G) = 4$} \\
+		\multicolumn{8}{c}{We sampled $10'000$ graphs} \\
+		& $\mathrm{diam}$ & $\gamma_*$ & $\lambda_{*}$  &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		mean & 7.451 & 0.14 & 0.14 &  0.146 & 3.0178 & 0.598 & 1.964 \\
+		std & 0.498 & 0.006 & 0.006 &  0.007 & 0.132 & 0.026 & 0.071 \\
+		best & 7 & 0.158 & 0.158 &  0.17 & 4 & 0.792 & 2.218 \\
+	\end{tabular}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$|G| = 512$, $\mathrm{deg}(G) = 4$} \\
+		\multicolumn{8}{c}{We sampled $10'000$ graphs} \\
+		& $\mathrm{diam}$ & $\gamma_*$ & $\lambda_{*}$  &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		mean & 8.004 & 0.137 & 0.137 &  0.14 & 3.0199 & 0.532 & 2.278 \\
+		std & 0.069 & 0.004 & 0.004 &  0.004 & 0.14 & 0.025 & 0.065 \\
+		best & 8 & 0.149 & 0.149 &  0.155 & 5 & 0.881 & 2.535
+	\end{tabular}
+\end{center}
+
+\vspace{1em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$|G| = 1024$, $\mathrm{deg}(G) = 4$} \\
+		\multicolumn{8}{c}{We sampled $1'000$ graphs} \\
+		& $\mathrm{diam}$ & $\gamma_*$ & $\lambda_{*}$  &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		mean & 9.0 & 0.136 & 0.136 &  0.138 & 3.024 & 0.479 & 2.570 \\
+		std & 0.0 & 0.002 & 0.002 &  0.003 & 0.153 & 0.024 & 0.048 \\
+		max & 9 & 0.143 & 0.143 &  0.145 & 4 & 0.634 & 2.722 \\
+	\end{tabular}
+\end{center}
+
+
+
+
+\newpage
+
+\section{Computational Results for Cayley Graphs}
+
+\subsection{4-regular Cayley graph Experiment 1}
+
+In this section we discuss various examples of Theorem 1.1  First, we consider
+$$S_1 = \left\{  \begin{pmatrix}
+1 & \pm 1 \\ 0 & 1
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 1 & 1
+\end{pmatrix}  \right\}.$$  
+
+\vspace{2em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_1)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 4$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		3 & 24 & 4 &  0.317 & 0.317 & 3 & 1.037 & 2 \\
+		4 & 48 & 6 &  0.0 & 0.293 & 4 & 1.135 & 1 \\
+		5 & 120 & 6 &  0.191 & 0.191 & 5 & 1.147 & 2 \\
+		6 & 144 & 6 &  0.0 & 0.239 & 6 & 1.326 & 2 \\
+		7 & 336 & 7 &  0.11 & 0.146 & 6 & 1.133 & 2 \\
+		8 & 384 & 8 &  0.0 & 0.146 & 6 & 1.108 & 2 \\
+		9 & 648 & 8 &  0.067 & 0.121 & 6 & 1.018 & 2 \\
+		10 & 720 & 10 &  0.0 & 0.095 & 6 & 1.002 & 2 \\
+		11 & 1320 & 10 &  0.067 & 0.095 & 6 & 0.917 & 2 \\
+		12 & 1152 & 10 &  0.0 & 0.11 & 6 & 0.935 & 2 \\
+		13 & 2184 & 10 &  0.044 & 0.081 & 6 & 0.857 & 2 \\
+		14 & 2016 & 11 &  0.0 & 0.086 & 6 & 0.866 & 2 \\
+		15 & 2880 & 12 &  0.023 & 0.061 & 6 & 0.828 & 2 \\
+		16 & 3072 & 12 &  0.0 & 0.051 & 6 & 0.821 & 2 \\
+		17 & 4896 & 12 &  0.064 & 0.073 & 6 & 0.776 & 2 \\
+		18 & 3888 & 12 &  0.0 & 0.067 & 6 & 0.797 & 2 \\
+		19 & 6840 & 13 &  0.048 & 0.061 & 6 & 0.746 & 2 \\
+		20 & 5760 & 14 &  0.0 & 0.049 & 6 & 0.761 & 2 \\
+		21 & 8064 & 14 &  0.05 & 0.059 & 6 & 0.733 & 2 \\
+		22 & 7920 & 14 &  0.0 & 0.062 & 6 & 0.734 & 2 \\
+		23 & 12144 & 14 &  0.045 & 0.052 & 6 & 0.701 & 2 \\
+		24 & 9216 & 16 &  0.0 & 0.043 & 6 & 0.722 & 2 \\
+		25 & 15000 & 18 &  0.043 & 0.043 & 6 & 0.686 & 2 \\
+		26 & 13104 & 16 &  0.0 & 0.044 & 6 & 0.695 & 2 \\
+		27 & 17496 & 15 &  0.052 & 0.052 & 6 & 0.675 & 2 \\
+		28 & 16128 & 16 &  0.0 & 0.063 & 6 & 0.68 & 2 \\
+		29 & 24360 & 15 &  0.038 & 0.046 & 6 & 0.653 & 2 \\
+		30 & 17280 & 20 &  0.0 & 0.023 & 6 & 0.676 & 2 \\
+		31 & 29760 & 15 &  0.045 & 0.057 & 6 & 0.64 & 2 \\
+		32 & 24576 & 18 &  0.0 & 0.051 & 6 & 0.652 & 2 \\
+		33 & 31680 & 16 &  0.044 & 0.044 & 6 & 0.636 & 2 \\
+		34 & 29376 & 20 &  0.0 & 0.035 & 6 & 0.641 & 2 
+	\end{tabular}
+\end{center}
+
+\newpage 
+
+\subsection{4-regular Cayley graph Experiment 2}
+
+We next consider
+$$S_2 = \left\{  \begin{pmatrix}
+1 & \pm 2 \\ 0 & 1
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 2 & 1
+\end{pmatrix}  \right\}.$$ We note that in this case,  
+
+\vspace{2em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_2)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 4$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		3 & 24 & 4 &  0.317 & 0.317 & 3 & 1.037 & 2 \\
+		5 & 120 & 6 &  0.191 & 0.191 & 5 & 1.147 & 2 \\
+		7 & 336 & 8 &  0.146 & 0.221 & 6 & 1.133 & 2 \\
+		9 & 648 & 8 &  0.157 & 0.206 & 9 & 1.527 & 4 \\
+		11 & 1320 & 9 &  0.157 & 0.181 & 9 & 1.376 & 4 \\
+		13 & 2184 & 9 &  0.108 & 0.156 & 10 & 1.429 & 4 \\
+		15 & 2880 & 11 &  0.087 & 0.087 & 10 & 1.379 & 4 \\
+		17 & 4896 & 11 &  0.086 & 0.086 & 10 & 1.293 & 4 \\
+		19 & 6840 & 10 &  0.142 & 0.155 & 10 & 1.244 & 4 \\
+		21 & 8064 & 12 &  0.096 & 0.121 & 10 & 1.221 & 4 \\
+		23 & 12144 & 11 &  0.146 & 0.151 & 12 & 1.402 & 5 \\
+		25 & 15000 & 12 &  0.136 & 0.136 & 12 & 1.371 & 5 \\
+		27 & 17496 & 13 &  0.131 & 0.131 & 13 & 1.462 & 6 \\
+		29 & 24360 & 13 &  0.119 & 0.119 & 10 & 1.088 & 4 \\
+		31 & 29760 & 12 &  0.119 & 0.139 & 14 & 1.493 & 6 \\
+		33 & 31680 & 12 &  0.119 & 0.123 & 14 & 1.484 & 6 
+	\end{tabular}
+\end{center}
+
+\newpage
+
+\subsection{4-regular Cayley graph Experiment 3}
+
+
+Let 
+$$S_3 = \left\{  \begin{pmatrix}
+1 & \pm 3 \\ 0 & 1
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 3 & 1
+\end{pmatrix}  \right\}.$$ We note that in this case,  
+
+\vspace{2em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_3)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 4$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		4 & 48 & 6 &  0.0 & 0.293 & 4 & 1.135 & 1 \\
+		5 & 120 & 6 &  0.191 & 0.191 & 5 & 1.147 & 2 \\
+		7 & 336 & 6 &  0.114 & 0.191 & 7 & 1.322 & 3 \\
+		8 & 384 & 8 &  0.0 & 0.146 & 6 & 1.108 & 2 \\
+		10 & 720 & 10 &  0.0 & 0.095 & 6 & 1.002 & 2 \\
+		11 & 1320 & 9 &  0.083 & 0.112 & 8 & 1.223 & 3 \\
+		13 & 2184 & 9 &  0.108 & 0.156 & 10 & 1.429 & 4 \\
+		14 & 2016 & 11 &  0.0 & 0.114 & 8 & 1.155 & 3 \\
+		16 & 3072 & 12 &  0.0 & 0.051 & 8 & 1.094 & 3 \\
+		17 & 4896 & 11 &  0.11 & 0.11 & 9 & 1.164 & 5 \\
+		19 & 6840 & 11 &  0.118 & 0.118 & 9 & 1.12 & 5 \\
+		20 & 5760 & 13 &  0.0 & 0.061 & 8 & 1.015 & 3 \\
+		22 & 7920 & 13 &  0.0 & 0.083 & 8 & 0.979 & 3 \\
+		23 & 12144 & 11 &  0.132 & 0.132 & 10 & 1.168 & 4 \\
+		25 & 15000 & 13 &  0.101 & 0.101 & 12 & 1.371 & 5 \\
+		26 & 13104 & 13 &  0.0 & 0.108 & 10 & 1.159 & 4 \\
+		28 & 16128 & 14 &  0.0 & 0.07 & 10 & 1.134 & 4 \\
+		29 & 24360 & 12 &  0.087 & 0.087 & 10 & 1.088 & 4 \\
+		31 & 29760 & 13 &  0.119 & 0.127 & 10 & 1.067 & 4 \\
+		32 & 24576 & 13 &  0.0 & 0.051 & 10 & 1.087 & 4 \\
+		34 & 29376 & 13 &  0.0 & 0.11 & 12 & 1.281 & 5 
+	\end{tabular}
+\end{center}
+
+\newpage
+
+\subsection{6-regular Cayley graph}
+
+We next assume that $m \geq 5$ and discuss the generating set $$S_4 =  \left\{ \begin{pmatrix}
+1 & \pm 2 \\ 0 & 1 
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 2 & 1 
+\end{pmatrix} , \begin{pmatrix}
+2 & 0 \\ 0 & 2^{-1} 
+\end{pmatrix}, \begin{pmatrix}
+2 & 0 \\ 0 & 2^{-1} 
+\end{pmatrix} \right\}.$$
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_4)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 6$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		3 & 24 & 3 &  0.4 & 0.4 & 3 & 1.309 & 1 \\
+		5 & 120 & 4 &  0.167 & 0.333 & 4 & 1.345 & 1 \\
+		7 & 336 & 6 &  0.201 & 0.201 & 3 & 0.83 & 2 \\
+		9 & 648 & 6 &  0.266 & 0.266 & 5 & 1.243 & 2 \\
+		11 & 1320 & 6 &  0.271 & 0.271 & 6 & 1.344 & 2 \\
+		13 & 2184 & 7 &  0.227 & 0.234 & 6 & 1.256 & 2 \\
+		15 & 2880 & 8 &  0.154 & 0.154 & 4 & 0.808 & 1 \\
+		17 & 4896 & 8 &  0.139 & 0.139 & 6 & 1.137 & 2 \\
+		19 & 6840 & 8 &  0.208 & 0.208 & 6 & 1.094 & 2 \\
+		21 & 8064 & 8 &  0.201 & 0.201 & 6 & 1.074 & 2 \\
+		23 & 12144 & 9 &  0.2 & 0.2 & 7 & 1.198 & 3 \\
+		25 & 15000 & 9 &  0.167 & 0.219 & 7 & 1.172 & 3 \\
+		27 & 17496 & 8 &  0.214 & 0.229 & 7 & 1.153 & 3 \\
+		29 & 24360 & 9 &  0.211 & 0.211 & 7 & 1.115 & 3 \\
+		31 & 29760 & 10 &  0.174 & 0.174 & 5 & 0.781 & 3 \\
+		33 & 31680 & 10 &  0.17 & 0.17 & 7 & 1.087 & 3 \\
+	\end{tabular}
+\end{center}
+
+
+\newpage
+
+\subsection{8-regular Cayley graph}
+
+We next assume that $m \geq 5$ and discuss the generating set $$S_5 =  \left\{ \begin{pmatrix}
+1 & \pm 1 \\ 0 & 1 
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 1 & 1 
+\end{pmatrix} , \begin{pmatrix}
+1 & \pm 3 \\ 0 & 1 
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 3 & 1 
+\end{pmatrix} \right\}.$$
+
+\vspace{2em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_5)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 8$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		2 & 6 & 3 &  0.0 & 0.5 & 6 & 0.0 & 2 \\
+		4 & 48 & 6 &  0.0 & 0.293 & 4 & 1.135 & 1 \\
+		5 & 120 & 4 &  0.345 & 0.345 & 3 & 1.219 & 1 \\
+		7 & 336 & 4 &  0.309 & 0.309 & 3 & 1.004 & 1 \\
+		8 & 384 & 6 &  0.0 & 0.293 & 4 & 1.308 & 1 \\
+		10 & 720 & 6 &  0.0 & 0.341 & 4 & 1.183 & 1 \\
+		11 & 1320 & 6 &  0.232 & 0.282 & 4 & 1.083 & 1 \\
+		13 & 2184 & 7 &  0.174 & 0.265 & 4 & 1.012 & 1 \\
+		14 & 2016 & 7 &  0.0 & 0.269 & 4 & 1.023 & 1 \\
+		16 & 3072 & 7 &  0.0 & 0.225 & 4 & 0.969 & 1 \\
+		17 & 4896 & 7 &  0.195 & 0.24 & 4 & 0.916 & 1 \\
+		19 & 6840 & 7 &  0.163 & 0.224 & 4 & 0.881 & 1 \\
+		20 & 5760 & 8 &  0.0 & 0.185 & 4 & 0.899 & 1 \\
+		22 & 7920 & 8 &  0.0 & 0.219 & 4 & 0.867 & 1 \\
+		23 & 12144 & 8 &  0.153 & 0.19 & 4 & 0.828 & 1 \\
+		25 & 15000 & 9 &  0.143 & 0.156 & 4 & 0.809 & 1 \\
+		26 & 13104 & 9 &  0.0 & 0.174 & 4 & 0.821 & 1 \\
+		28 & 16128 & 9 &  0.0 & 0.2 & 4 & 0.803 & 1 \\
+		29 & 24360 & 8 &  0.14 & 0.17 & 4 & 0.771 & 1 \\
+		31 & 29760 & 8 &  0.156 & 0.191 & 4 & 0.756 & 1 \\
+		32 & 24576 & 10 &  0.0 & 0.177 & 4 & 0.77 & 1 \\
+		34 & 29376 & 9 &  0.0 & 0.149 & 4 & 0.757 & 1 
+	\end{tabular}
+\end{center}
+\vspace{2em}
+
+\newpage
+
+\subsection{10-regular Cayley graph}
+
+
+$$S_6 =  S_5 \cup  \left\{ \begin{pmatrix}
+2 & 0 \\ 0 & 2^{-1}
+\end{pmatrix}, \begin{pmatrix}
+2^{-1} & 0 \\  0 & 2 
+\end{pmatrix} \right\}.$$
+
+\vspace{2em}
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_6)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 10$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		5 & 120 & 3 &  0.4 & 0.4 & 3 & 1.377 & 1 \\
+		7 & 336 & 4 &  0.28 & 0.28 & 3 & 1.133 & 1 \\
+		11 & 1320 & 5 &  0.317 & 0.317 & 4 & 1.223 & 1 \\
+		13 & 2184 & 6 &  0.291 & 0.291 & 4 & 1.143 & 1 \\
+		17 & 4896 & 7 &  0.245 & 0.245 & 4 & 1.034 & 1 \\
+		19 & 6840 & 6 &  0.288 & 0.288 & 4 & 0.995 & 1 \\
+		23 & 12144 & 7 &  0.27 & 0.27 & 4 & 0.935 & 1 \\
+		29 & 24360 & 7 &  0.251 & 0.251 & 4 & 0.87 & 1 \\
+		31 & 29760 & 7 &  0.234 & 0.234 & 4 & 0.853 & 1 
+	\end{tabular}
+\end{center}
+
+
+\newpage 
+
+\subsection{16-regular Cayley graph}
+
+We will discuss Ramanujan graphs in the next section. In order to compare them to graphs studied in this section, we finally give an example of degree 16. Let $m$ by prime and write $$S_7 = S_6 \cup \left\{  \left\{ \begin{pmatrix}
+1 & \pm 7 \\ 0 & 1
+\end{pmatrix}, \begin{pmatrix}
+1 & 0 \\ \pm 7 & 1
+\end{pmatrix}, \begin{pmatrix}
+5 & 0 \\ 0 & 5^{-1}
+\end{pmatrix}, \begin{pmatrix}
+5^{-1} & 0 \\  0 & 5 
+\end{pmatrix} \right\}.  \right\}$$
+
+\begin{center}
+	\begin{tabular}{ p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm} }
+		\multicolumn{8}{c}{$G = \mathrm{Cay}(\mathrm{SL}_2(\Z/m\Z),S_7)$} \\
+		\multicolumn{8}{c}{$\mathrm{deg}(G) = 16$} \\
+		\hline
+		$m$ & $n$ &  $\mathrm{diam}$ & $\gamma_*$ &  $\lambda_1$ & $g$ & $g_{\mathrm{ratio}}$ & $\mathrm{inj}$     \\
+		\hline
+		11 & 1320 & 4 &  0.375 & 0.375 & 3 & 1.131 & 1 \\
+		13 & 2184 & 4 &  0.35 & 0.35 & 3 & 1.057 & 1 \\
+		17 & 4896 & 5 &  0.352 & 0.352 & 3 & 0.956 & 1 \\
+		19 & 6840 & 5 &  0.325 & 0.325 & 3 & 0.92 & 1 \\
+		23 & 12144 & 5 &  0.32 & 0.32 & 3 & 0.864 & 1 \\
+		29 & 24360 & 6 &  0.355 & 0.355 & 4 & 1.072 & 1 \\
+		31 & 29760 & 6 &  0.282 & 0.282 & 3 & 0.789 & 1 \\
+	\end{tabular}
+\end{center}
+
+
+
+\newpage
+
+\section{Appendix: Proof of Basic Spectral Bound}
+
+\begin{lemma}\label{WeakAlonBoppana}
+	Let $G = (V,E)$ be a $k$-regular connected simple finite graph. Then the following properties hold:
+	\begin{enumerate}
+		\item[(i)] $\sum_{i = 0}^{n-1} \gamma_i = 0$.
+		\item[(ii)] $\sum_{i = 0}^{n-1} \gamma_i^2 = \frac{n}{k}$.
+		\item[(iii)] $\sqrt{\frac{(n-k)}{k (n-1)}} \leq \mathrm{max}(|\gamma_1|, |\gamma_{n-1}|)$.
+	\end{enumerate}
+	In particular, $\mathrm{max}(|\gamma_1|, |\gamma_{n-1}|) \geq \frac{1}{\sqrt{k}} - o_{k}(1)$ as $n \to \infty$. 
+\end{lemma}
+
+\begin{proof}
+	To prove $(i)$ we note that $\mathrm{tr}(A) = \sum_{i} \gamma_i$ and $\mathrm{tr}(A) = 0$. 
+	
+	To prove $(ii)$, observe that $A^2 = \frac{1}{k}\cdot\mathrm{Id}_n$. This follows as $A$ is symmetric and each row has precisely $k$-entries that are $\frac{1}{k}$ and $(n-k)$-entries that are $0$. Moreover, if $g \in \mathrm{GL}_n(\mathbb{R})$ such that $gAg^{-1}$ is diagonal, then it follows that $$\frac{n}{k} = \mathrm{tr}(A^2) = \mathrm{tr}(gAg^{-1}gAg^{-1}) = \sum_{i = 1}^{n} \gamma_i^2,$$ where the last equality holds as $gAg^{-1}$ is a diagonal matrix. 
+	
+	Finally to show (iii), we simply exploit that that $\gamma_0 = 1$ and $\gamma_1 \geq \ldots \geq \gamma_{n-1}$. Thus $$\frac{n-k}{k} = \frac{n}{k} - 1 = \sum_{i = 1}^{n-1} \gamma_i^2 \leq (n-1)\mathrm{max}(|\gamma_1|, |\gamma_{n-1}|)^2,$$ implying the claim. (iii) is implied as $\sqrt{\frac{(n-k)}{(n-1)}}-1 = o_{k}(1)$ as $n \to \infty$. 
+\end{proof}
