@@ -14,9 +14,9 @@ import randomgraphs as rg
 print("We show the following quantities:")
 print("Diameter & gamma & lambda_{star} & lambda_1 & girth & girth ratio & mean injectivity radius")
 
-n = 256
+n = 32
 k = 2
-m = 100
+m = 1000000
 
 list_of_diam = np.array([])
 list_of_asg = np.array([])
@@ -48,6 +48,8 @@ for l in range(0,m):
     list_of_gth = np.append(list_of_gth, gth)
     list_of_gthratio = np.append(list_of_gthratio, gthratio)
     list_of_minj = np.append(list_of_minj, minj)
+
+print(f"We sampled a {m} graphs on {n} vertices and of degree {2*k}.")
 
 #We output the graph theoretic quantities such that it can be used for a Latex table.  
 print(f"mean & {list_of_diam.mean()} & {round(list_of_asg.mean(),3)} & {round(list_of_ast.mean(),3)} &  \
